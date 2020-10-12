@@ -23,8 +23,6 @@ RUN yes | apt-get install ubuntu-dev-tools
 
 # Install Android SDK
 RUN wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-$ANDROID_SDK_TOOLS.zip
-RUN export ANDROID_HOME=$PWD/android-sdk-linux
-RUN export PATH=$PATH:$PWD/android-sdk-linux/platform-tools/
 RUN unzip -d android-sdk-linux android-sdk.zip
 RUN echo y | android-sdk-linux/tools/bin/sdkmanager "platforms;android-$ANDROID_COMPILE_SDK_27" >/dev/null
 RUN echo y | android-sdk-linux/tools/bin/sdkmanager "platforms;android-$ANDROID_COMPILE_SDK_28" >/dev/null
@@ -35,6 +33,8 @@ RUN echo y | android-sdk-linux/tools/bin/sdkmanager "build-tools;$ANDROID_BUILD_
 RUN echo y | android-sdk-linux/tools/bin/sdkmanager "ndk;$NDK_VERSION" >/dev/null
 RUN echo y | android-sdk-linux/tools/bin/sdkmanager "cmake;$CMAKE_VERSION" >/dev/null
 RUN yes | android-sdk-linux/tools/bin/sdkmanager --licenses
+ENV ANDROID_HOME=$PWD/android-sdk-linux
+ENV PATH=$PATH:$PWD/android-sdk-linux/platform-tools/
 RUN rm android-sdk.zip
 
 # Install bundler for fastlane
