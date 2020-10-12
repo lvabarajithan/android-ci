@@ -11,7 +11,14 @@ ENV NDK_VERSION="21.0.6113669"
 ENV CMAKE_VERSION="3.10.2.4988404"
 
 # Init apt-get
-RUN apt-get --quiet update --yes && apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1 ruby ruby-dev
+RUN apt-get --quiet update --yes && \
+    apt-get --quiet install --yes wget \
+    tar \
+    unzip \
+    lib32stdc++6 \
+    lib32z1 \
+    ruby \
+    ruby-dev
 RUN yes | apt-get install ubuntu-dev-tools
 
 # Install Android SDK
@@ -27,17 +34,15 @@ RUN echo y | android-sdk-linux/tools/bin/sdkmanager "platform-tools" >/dev/null
 RUN echo y | android-sdk-linux/tools/bin/sdkmanager "build-tools;$ANDROID_BUILD_TOOLS" >/dev/null
 RUN echo y | android-sdk-linux/tools/bin/sdkmanager "ndk;$NDK_VERSION" >/dev/null
 RUN echo y | android-sdk-linux/tools/bin/sdkmanager "cmake;$CMAKE_VERSION" >/dev/null
-ENV ANDROID_HOME=$PWD/android-sdk-linux
-ENV PATH=$PATH:$PWD/android-sdk-linux/platform-tools/
 RUN yes | android-sdk-linux/tools/bin/sdkmanager --licenses
 RUN rm android-sdk.zip
 
 # Install bundler for fastlane
 RUN gem install bundler
 
-# Install gcloud tool
-RUN wget https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz
-RUN tar zxvf google-cloud-sdk.tar.gz && ./google-cloud-sdk/install.sh --usage-reporting=false --path-update=true
-ENV PATH="google-cloud-sdk/bin:$PATH"
-RUN gcloud --quiet components update
-RUN rm google-cloud-sdk.tar.gz
+# Google cloud sdk
+RUN curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz > /tmp/google-cloud-sdk.tar.gz
+RUN mkdir -p /usr/local/gcloud \
+  && tar -C /usr/local/gcloud -xvf /tmp/google-cloud-sdk.tar.gz \
+  && /usr/local/gcloud/google-cloud-sdk/install.sh --quiet
+ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
